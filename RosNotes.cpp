@@ -1,4 +1,4 @@
-# Ros C++代码理解
+---------------------------Ros C++代码理解和学习笔记1------------------------------------------
 
 
 最简单的发布器：Publisher------------------------------------------------------------------------
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 //AddTwoInts.h是编译系统根据写好的srv文件自动生成的
 #include "beginner_tutorials/AddTwoInts.h"
 
-//req代表请求对象    
+//req代表请求对象
 //res代表响应对象
 bool add(beginner_tutorials::AddTwoInts::Request  &req,
          beginner_tutorials::AddTwoInts::Response &res)
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 ros::NodeHandle n;
 
 //获取参数
-//key是参数名，output_value用来保存参数的值 , 
+//key是参数名，output_value用来保存参数的值 ,
 //getParam()的返回值是bool,可以通过返回值来判断参数是否获取成功
 n.getParam(const std::string & key, parameter_type & output_value );
 //如：
@@ -314,7 +314,8 @@ ExampleTalker::ExampleTalker(ros::NodeHandle nh) : message_("hello"), a_(1), b_(
  //设置一个动态的重配置服务器
 //需要在参数服务器之前设置这个重配置服务器，否则一些参数就会被参数服务器复写
   dynamic_reconfigure::Server<node_example::nodeExampleConfig>::CallbackType cb;
-  //这一行是什么意思？？
+ //将configCallback绑定到cb,这里的_1和_2是一个占位符，
+ //_1表示用第一个输入的参数替代，_2表示用第二个输入的参数替代
   cb = boost::bind(&ExampleTalker::configCallback, this, _1, _2);
   dr_srv_.setCallback(cb);
 
@@ -373,7 +374,7 @@ namespace node_example
 {
 class ExampleTalker
 {
- public:  
+ public:
   explicit ExampleTalker(ros::NodeHandle nh);
   void configCallback(node_example::nodeExampleConfig &config, uint32_t level);
   void timerCallback(const ros::TimerEvent &event);
@@ -390,7 +391,7 @@ class ExampleTalker
   bool enable_;
 };
 }
-#endif  
+#endif
 
 
 高级的订阅器------------------------------------------------------------------------
@@ -429,7 +430,7 @@ namespace node_example
       ros::Subscriber sub_;
     };
 }
-#endif 
+#endif
 
 
 -----------初始化参数的设置------
@@ -442,6 +443,3 @@ namespace node_example
 
 2.通过命令行设置
 rosrun node_example talker _message:="Hello world!" _a:=57 _b:=-15 _rate:=1
-
-
-
