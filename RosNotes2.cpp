@@ -86,6 +86,48 @@ tf 数据类型-----------------------------------------------------------------
 4.Pose                      tf::Pose
 5.Transform             tf::Transform
 
+//这五种Message type为：
+[geometry_msgs/Quaternion]:
+float64 x
+float64 y
+float64 z
+float64 w
+
+[geometry_msgs/Vector3]:
+float64 x
+float64 y
+float64 z
+
+[geometry_msgs/Point]:
+float64 x
+float64 y
+float64 z
+
+
+[geometry_msgs/Pose]:
+geometry_msgs/Point position
+  float64 x
+  float64 y
+  float64 z
+geometry_msgs/Quaternion orientation
+  float64 x
+  float64 y
+  float64 z
+  float64 w
+
+
+  [geometry_msgs/Transform]:
+  geometry_msgs/Vector3 translation
+    float64 x
+    float64 y
+    float64 z
+  geometry_msgs/Quaternion rotation
+    float64 x
+    float64 y
+    float64 z
+    float64 w
+
+
 tf::Stamped 模板
 tf::Stamped对上述数据类型做模板化(除了tf::Transform)，并附带元素frame_id,stamp_
 template <typename T>
@@ -133,3 +175,55 @@ tf::Quaternion createQuaternionFromRPY(double roll,double pitch,double yaw);
 
 //返回从固定轴的Roll, Pitch and Yaw(滚动，俯仰和偏转)构造的geometry_msgs::Quaternion四元数
 geometry_msgs::Quaternion createQuaternionMsgFromRollPitchYaw(double roll,double pitch,double yaw);
+
+
+tf 广播变换------------------------------------------------------------------------
+无参构造器：
+tf::TransformBroadcaster();
+
+发送变换：
+发送变换通过调用sendTransform()函数实现，传递StampedTransform
+或geometry_msgs::TransformStamped为参数
+如：
+void sendTransform(const StampedTransform & transform);
+void sendTransform(const geometry_msgs::TransformStamped & transform);
+
+
+tf 使用已发布的变换------------------------------------------------------------------------
+通过调用tf::TransformListener类来处理变换，它继承自tf::Transformer
+
+构造函数：
+TransformListener(const ros::NodeHandle &nh,
+                             ros::Duration max_cache_time=ros::Duration(DEFAULT_CACHE_TIME),
+                              bool spin_thread=true);
+TransformListener(ros::Duration max_cache_time=ros::Duration(DEFAULT_CACHE_TIME), bool spin_thread=true);
+
+辅助方法：
+std::string tf::TransformListener::resolve (const std::string &frame_id)
+
+判断是否实现变换：检查在时间time内，source_frame能否变换到target_frame
+bool tf::TransformListener::canTransform (const std::string &target_frame, const std::string &source_frame,
+                                                                    const ros::Time &time, std::string *error_msg=NULL)
+
+
+ 判断变换是否有效：检查在时间time， source_frame能否变换到target_frame
+它将休眠并重试每个polling_duration，直到超时的持续时间已经过去。
+ bool tf::TransformListener::waitForTransform (const std::string &target_frame, const std::string &source_frame,
+                                                                        const ros::Time &time, const ros::Duration &timeout,
+                                                                        const ros::Duration &polling_sleep_duration=ros::Duration(0.01),
+                                                                         std::string *error_msg=NULL)
+
+
+tf 异常------------------------------------------------------------------------
+
+异常类：tf::ConnectivityException
+作用：如果由于两个坐标系ID不在同一个连接的树中而无法完成请求，则抛出。
+
+异常类：tf::ExtrapolationException
+作用：如果请求的坐标系id之间存在连接，但一个或多个变换已过期，则抛出。
+
+异常类：tf::InvalidArgument
+作用：如果参数无效则抛出。 最常见的情况是非规范化的四元数。
+
+异常类：tf::LookupException
+作用：如果引用了未发布的坐标系ID，则抛出。
